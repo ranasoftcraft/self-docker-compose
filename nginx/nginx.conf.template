@@ -15,7 +15,7 @@ http {
     limit_req_zone $binary_remote_addr zone=calendar:10m rate=10r/s;
 
     upstream calendar {
-        server host.docker.internal:6001;
+        server calendar:8080;
     }
     
     # Main server block to handle incoming requests
