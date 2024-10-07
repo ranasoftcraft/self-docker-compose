@@ -1,0 +1,67 @@
+load_module modules/ngx_http_js_module.so;
+load_module /usr/lib/nginx/modules/ngx_http_auth_jwt_module.so;
+
+# JWT secret this will come from env property
+events {}
+http {
+
+    include mime.types;
+  
+    auth_jwt_key "${jwt_secret}"; ## Init the jwt with same secret key as signing key
+    auth_jwt off; ## Enable by default
+  
+    
+    ## Rate limit for calendar
+    limit_req_zone $binary_remote_addr zone=calendar:10m rate=10r/s;
+
+    upstream calendar {
+        server host.docker.internal:6001;
+    }
+    
+    # Main server block to handle incoming requests
+    server {
+
+        listen 80;
+        server_name _;
+        root /usr/share/nginx/html/public;
+        
+        location /calendar {
+            auth_jwt off;
+            limit_req zone=calendar burst=10 nodelay;
+            proxy_pass http://calendar/;
+            proxy_set_header Host $host;
+        }
+
+        location /webjars/ {
+            auth_jwt off;
+            limit_req zone=calendar burst=10 nodelay;
+            proxy_pass http://calendar;
+            proxy_set_header Host $host;
+        }
+
+        location /static/ {
+            auth_jwt off;
+            limit_req zone=calendar burst=10 nodelay;
+            proxy_pass http://calendar;
+            proxy_set_header Host $host;
+        }
+
+        location /images/ {
+            root /usr/share/nginx/html/public;
+            try_files $uri =404;
+        }
+
+
+        #location ~* \.css$ {
+        #    types { text/css css; }
+        #    default_type text/css;
+        #    root /usr/share/nginx/html/public;
+        #}
+
+
+        #location = / {
+        #    return 301 $scheme://$host;
+        #}
+    
+    }
+}
