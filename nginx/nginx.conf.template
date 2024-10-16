@@ -46,6 +46,13 @@ http {
             proxy_set_header Host $host;
         }
 
+        location /user {
+            auth_jwt off;
+            limit_req zone=calendar burst=10 nodelay;
+            proxy_pass http://calendar/;
+            proxy_set_header Host $host;
+        }
+
         location /images/ {
             root /usr/share/nginx/html/public;
             try_files $uri =404;
