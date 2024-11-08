@@ -37,17 +37,10 @@ services:
       - ranasoftcraft-network
   ngx:
     restart: unless-stopped
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    image: nginx:latest
+    image: ranasoftcraft/ranasoftcraft.co.in-2:prod
     container_name: nginx
     ports:
       - 80:80
-    environment:
-      - jwt_secret=41-4D-49-54-20-53-48-41-52-4D-41
-    # volumes:
-    #   - ./default.conf:/etc/nginx/conf.d/default.conf
     networks:
       - ranasoftcraft-network
 volumes:
